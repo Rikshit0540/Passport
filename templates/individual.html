@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Login</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="static/vendor/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="static/css/util.css">
+  <link rel="stylesheet" type="text/css" href="static/css/main.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<style>
+    .column {
+          float: left;
+          width: 50%;
+          padding: 10px 10px;
+        }
+
+        .column1{
+            float: center;
+            width: 100%;
+            padding: 10px 10px;
+        }
+        
+        /* Remove extra left and right margins, due to padding */
+        .row {
+            margin: 0 -5px;
+            display: contents;    
+        }
+        
+        /* Clear floats after the columns */
+        .row:after {
+          content: "";
+          display: table;
+          clear: both;
+        }
+        
+        /* Responsive columns */
+        @media screen and (max-width: 600px) {
+          .column {
+            width: 100%;
+            display: block;
+            margin-bottom: 20px;
+          }
+        }
+        @media screen and (max-width: 600px){
+            .card{
+                min-width: 100px;
+            }
+        }
+        
+        /* Style the counter cards */
+        .card {
+          box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+          padding: 25px;
+          text-align: center;
+          background-color: #f1f1f1;
+          background: transparent;
+          border-radius: 15px;
+        }
+
+          .inputcategory{
+            font-family: Poppins-Regular;
+    font-size: 16px;
+    color: #666666;
+    line-height: 1.2;
+    display: block;
+    width: 100%;
+    height: 45px;
+    background: transparent;
+    padding: 0 5px 0 38px;
+        }
+        .buttoncategory{
+            font-family: Poppins-Regular;
+    font-size: 16px;
+    color: #666666;
+    line-height: 1.2;
+    display: block;
+    width: 80%;
+    height: 45px;
+    background: transparent;
+    margin: 8px auto;
+    /* padding: 0 5px 0 38px; */
+        }
+       
+input[type="text"].inputcategory::-webkit-input-placeholder {
+  color: #666666;
+}
+input[type="email"].inputcategory::-webkit-input-placeholder {
+  color: #666666;
+}
+
+</style>
+
+<body>
+    <div class="limiter">
+        <div class="container-login100" style="background-image: url('static/images/bg-01.jpg');">
+            <div class="row">
+                {% set count = namespace(a=sendid+1) %}
+                <div class="column" id="single">
+                    <div class="card">
+                    <h3><span style="float: right;" id="unique_id">{{count.a}}</span></h3>
+                    <input class="inputcategory" type="text" id="name" name="name" placeholder="Name">
+                    <input class="inputcategory" type="text" id="passport_no" name="passport_no" placeholder="Enter Passport Number">
+                    <input class="inputcategory" type="text" id="visa_entry_date" name="visa_entry_date" placeholder="Visa Entry Date : dd-mm-yyyy">
+                    <input class="inputcategory" type="text" id="visa_exit_date" name="visa_exit_date" placeholder="Visa Expiry Date: dd-mm-yyyy">
+                    <input class="inputcategory" type="email" id="email_id" name="email_id" placeholder="Enter Email id">
+                    <p style="text-align: center;color: red" class="aabb"></p>
+                    <button class="buttoncategory" style="border: 2px solid #666666" value="single" onclick="sendinfo()" type="submit">submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>               
+</body>
+
+
+<script>
+      function sendinfo(){
+        console.log("aaaaa",$('#unique_id').text());
+                var unique_id = $('#unique_id').text();
+                var name = $('#name').val();
+				var email_id = $('#email_id').val();
+				var passport_no = $('#passport_no').val();
+                var visa_entry_date = $('#visa_entry_date').val();
+                var visa_exit_date = $('#visa_exit_date').val();
+                var pattern= new RegExp("[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$");
+                var re = new RegExp("([0-9]{4}[-](0[1-9]|1[0-2])[-]([0-2]{1}[0-9]{1}|3[0-1]{1})|([0-2]{1}[0-9]{1}|3[0-1]{1})[-](0[1-9]|1[0-2])[-][0-9]{4})");
+                console.log("regex",re.test(visa_entry_date));
+                console.log('unique id', unique_id);
+                console.log("regex pattern", pattern.test(email_id));
+				if ((re.test(visa_entry_date) == false) || (pattern.test(email_id) == false) || (passport_no == "") || (re.test(visa_exit_date) == false)){
+                    console.log("ss",visa_entry_date);
+                    console.log("abov clas event",event.target.value);
+                    var example = document.getElementsByClassName('aabb')[0];
+                    example.innerHTML = "Please Enter above details correctly!";					
+                    return;
+				}
+                else{
+				var senddata={
+					'agentname': "",
+                    'passport_no':passport_no,
+                    'email_id':email_id,
+                    'visa_entry_date': visa_entry_date,
+                    'visa_exit_date':visa_exit_date,
+                    'unique_id': unique_id,
+                    'name': name
+				};
+				$.ajax({
+                type: "POST",
+                dataType: "json",
+                url: "/sendpasinfo",
+                data: senddata,
+                success: function (data) {
+                    console.log('training data');
+                    console.log(data.matchData);
+                    document.getElementById("single").style.display = "none";
+                    window.location.href = "/category"
+                    // window.location.href="/filldetail";
+                },
+                error: function (error) {
+                    jsonValue = jQuery.parseJSON(error.responseText);
+                    alert("error" + error.responseText);
+                }
+            });
+     }
+     }
+</script>
